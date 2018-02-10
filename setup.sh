@@ -7,6 +7,7 @@ wget -O /tmp/cat5tv-miners-install.sh https://raw.githubusercontent.com/Cat5TV/c
 apt -y install gimp ssh htop synaptic libreoffice chromium-bsu kodi iperf stress-ng git
 
 # For iperf (test ethernet speed) see https://askubuntu.com/questions/7976/how-do-you-test-the-network-speed-between-two-boxes
+# With iperf server in place at 10.0.0.110: iperf -c 10.0.0.110 -P 10 -t 30
 
 # For stress-ng:
 # More great info near bottom of https://www.cyberciti.biz/faq/stress-test-linux-unix-server-with-stress-ng/
