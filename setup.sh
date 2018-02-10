@@ -4,7 +4,7 @@
 wget -O /tmp/cat5tv-miners-install.sh https://raw.githubusercontent.com/Cat5TV/cat5tv-miners/master/monero-cpu.sh && chmod +x /tmp/cat5tv-miners-install.sh && sudo /tmp/cat5tv-miners-install.sh
 
 # Install a few packages good for demonstrating
-apt -y install gimp ssh htop synaptic libreoffice chromium kodi iperf stress-ng git
+apt -y install gimp ssh htop synaptic libreoffice chromium-bsu kodi iperf stress-ng git
 
 # For iperf (test ethernet speed) see https://askubuntu.com/questions/7976/how-do-you-test-the-network-speed-between-two-boxes
 
