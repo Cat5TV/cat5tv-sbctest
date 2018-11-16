@@ -1,6 +1,11 @@
 #!/usr/bin/env php
 <?php
   if (isset($argv[1])) $test=$argv[1]; else die('This script is not made to be run manually.' . PHP_EOL);
+  if (file_exists('/tmp/benchmark_pricescore')) {
+    $pricescore = trim(file_get_contents('/tmp/benchmark_pricescore'));
+  } else {
+    $pricescore = 0;
+  }
   $incoming = stream_get_contents(STDIN);
   $data = explode(PHP_EOL,$incoming);
   if (is_array($data)) {
@@ -33,10 +38,11 @@
       }
       if ( ($events > 0) && ($time > 0) ) {
         $result = ($events / $time);
-        $price = 35;
-#        $valuescore = (((($result/3600)*24)*7)/$price);
+        $price = floatval($argv[2]);
         $valuescore = (($price/$result)*3600);
-        echo number_format($result,3) . ' events per second. $' . number_format($valuescore,2) . ' cost per unit.';
+        $pricescore = $pricescore + $valuescore;
+        if ($test != 'io') file_put_contents('/tmp/benchmark_pricescore',$pricescore);
+        echo number_format($result,3) . ' events per second. Price: Ģ' . number_format($valuescore,2) . ' per unit.';
       } else {
         echo 0;
       }
