@@ -53,7 +53,8 @@ echo $mutex
 echo ""
 printf "Total Giggle cost of this board: Ģ"
 pricescore=`cat /tmp/benchmark_pricescore`
-printf "%'.2f" $pricescore
+giggles=$(echo "scale=2;$pricescore/$price" | bc)
+printf "%'.2f" $giggles
 echo "
 
 Giggles (Ģ) are a cost comparison that takes cost and performance into account.
