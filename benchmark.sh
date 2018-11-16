@@ -53,7 +53,8 @@ echo $mutex
 echo ""
 printf "Total Giggle cost of this board: Ģ"
 pricescore=`cat /tmp/benchmark_pricescore`
-giggles=$(echo "scale=2;$pricescore/$price" | bc)
+priceperc=$(echo "scale=2;$price/100" | bc)
+giggles=$(echo "scale=2;$pricescore*$priceperc" | bc)
 printf "%'.2f" $giggles
 echo "
 
