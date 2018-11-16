@@ -42,9 +42,9 @@ printf "Performing Mutex Benchmark... "
 mutex=`/usr/bin/sysbench --test=mutex --num-threads=64 run | /tmp/benchmark-parse.sh mutex $price`
 echo $mutex
 
-printf "Performing I/O Benchmark... "
-io=`/usr/bin/sysbench --test=fileio --file-test-mode=seqwr run | /tmp/benchmark-parse.sh io $price`
-echo $io
+#printf "Performing I/O Benchmark... "
+#io=`/usr/bin/sysbench --test=fileio --file-test-mode=seqwr run | /tmp/benchmark-parse.sh io $price`
+#echo $io
 
 echo ""
 printf "Total Giggle cost of this board: Ģ"

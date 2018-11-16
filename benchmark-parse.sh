@@ -40,6 +40,7 @@
         $result = ($events / $time);
         $price = floatval($argv[2]);
         $valuescore = (($price/$result)*3600);
+        if ($test == 'mutex') $valuescore = ($valuescore/50000);
         $pricescore = $pricescore + $valuescore;
         if ($test != 'io') file_put_contents('/tmp/benchmark_pricescore',$pricescore);
         echo number_format($result,3) . ' events per second. Price: Ģ' . number_format($valuescore,2) . ' per unit.';
