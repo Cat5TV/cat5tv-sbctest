@@ -7,6 +7,10 @@ if [[ ! -f /usr/bin/sysbench ]]; then
   apt -y install sysbench
 fi
 
+if [[ -e /tmp/out ]]; then
+  rm -f /tmp/out
+fi
+
 echo "Category5.TV SBC Benchmark v1.0"
 printf "Powered by "
 /usr/bin/sysbench --version
