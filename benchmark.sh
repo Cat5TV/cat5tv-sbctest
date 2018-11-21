@@ -7,6 +7,14 @@ if [[ ! -f /usr/bin/sysbench ]]; then
   apt -y install sysbench
 fi
 
+if [[ ! -f /usr/bin/bc ]]; then
+  apt -y install bc
+fi
+
+if [[ ! -f /usr/bin/php ]]; then
+  apt -y install php
+fi
+
 if [[ -e /tmp/out ]]; then
   rm -f /tmp/out
 fi
