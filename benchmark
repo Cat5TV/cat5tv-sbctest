@@ -12,6 +12,10 @@ if [[ ! -f /usr/bin/bc ]]; then
   apt -y install bc
 fi
 
+if [[ ! -f /usr/bin/php ]]; then
+  apt -y install php
+fi
+
 /usr/bin/sysbench --version
 
 cp benchmark-parse.sh /tmp/
