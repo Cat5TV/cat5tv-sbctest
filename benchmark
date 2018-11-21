@@ -1,6 +1,6 @@
 !/bin/bash
 
-if [[ ! -f /usr/bin/sysbench ]]; then
+if [ ! -f /usr/bin/sysbench ]; then
   wget -O /tmp/sysbench.sh https://packagecloud.io/install/repositories/akopytov/sysbench/script.deb.sh
   chmod +x /tmp/sysbench.sh
   /tmp/sysbench.sh
@@ -8,11 +8,11 @@ if [[ ! -f /usr/bin/sysbench ]]; then
   apt -y install sysbench
 fi
 
-if [[ ! -f /usr/bin/bc ]]; then
+if [ ! -f /usr/bin/bc ]; then
   apt -y install bc
 fi
 
-if [[ ! -f /usr/bin/php ]]; then
+if [ ! -f /usr/bin/php ]; then
   apt -y install php
 fi
 
