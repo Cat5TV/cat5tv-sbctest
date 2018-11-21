@@ -2,6 +2,7 @@
 
 if [[ ! -f /usr/bin/sysbench ]]; then
   wget -O /tmp/sysbench.sh https://packagecloud.io/install/repositories/akopytov/sysbench/script.deb.sh
+  chmod +x /tmp/sysbench.sh
   /tmp/sysbench.sh
   apt update
   apt -y install sysbench
