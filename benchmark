@@ -8,6 +8,10 @@ if [[ ! -f /usr/bin/sysbench ]]; then
   apt -y install sysbench
 fi
 
+if [[ ! -f /usr/bin/bc ]]; then
+  apt -y install bc
+fi
+
 /usr/bin/sysbench --version
 
 cp benchmark-parse.sh /tmp/
