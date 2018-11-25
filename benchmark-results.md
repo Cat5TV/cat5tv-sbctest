@@ -11,4 +11,4 @@
 | Pine A64-LTS | 32 | 987.183 / Ģ116.70 | 2,163,484.433 / Ģ0.05 | 3.294 / Ģ3.50 | Ģ75.65 | Cat5TV |
 | Pi 3 Model B+ | 35 | 125.7 / Ģ1,002.39 | 2,418,581.478 / Ģ0.05 | 85.345 / Ģ0.15 | Ģ350.90 | Cat5TV |
 
-**Adding to this document:** Please ensure your results are accurate, and post your results, ensuring to order yours into the list organizing all boards from the lowest Giggle value (highest value for the dollar) to the highest Giggle value (low value for the price).
+**Adding to this document:** Please ensure your results are accurate, and post your results, ensuring to order yours into the list organizing all boards from the lowest Giggle value (highest value for the dollar) to the highest Giggle value (low value for the price). If the cost of a board has changed, the Giggle Cost will also be affected. In cases such as this, if your results are based on the new cost (and this cost is ongoing), you may use your best judgement to either append a second result for the same board, or replace the old result (as would be the case if say, the cost of a board has permanently changed, rendering the old result inaccurate).
