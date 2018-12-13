@@ -18,5 +18,6 @@
 | Pi 3 Model B+ | 35 USD | 125.7 / Ģ1,002.39 | 2,418,581.478 / Ģ0.05 | 85.345 / Ģ0.15 | Ģ350.90 | Cat5TV |
 | ODROID XU4 | 59 USD | 261.179 / Ģ813.23 | 363,577.608 / Ģ0.58 | 13.237 / Ģ1.60 | Ģ481.10 | Cat5TV |
 | TinkerBoard S | 85 USD | 135.3 / Ģ2261.73 | 1,440,3521.648 / Ģ0.21 | 65.493 / Ģ0.47 | Ģ1923.05 | GitMarshallBill |
+| BananaPi Pro (Discontinued) | 59 USD | 33.306 / Ģ6,377.13 | 619,122.015 / Ģ0.34 | 36.349 / Ģ0.58 | Ģ3,763.06 | GitMarshallBill |
 
 **Adding to this document:** Please ensure your results are accurate, and post your results, ensuring to order yours into the list organizing all boards from the lowest Giggle value (highest value for the dollar) to the highest Giggle value (low value for the price). If the cost of a board has changed, the Giggle Cost will also be affected. In cases such as this, if your results are based on the new cost (and this cost is ongoing), you may use your best judgement to either append a second result for the same board, or replace the old result (as would be the case if say, the cost of a board has permanently changed, rendering the old result inaccurate).
