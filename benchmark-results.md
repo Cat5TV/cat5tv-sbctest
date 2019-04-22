@@ -1,4 +1,5 @@
-# Benchmark Results and Giggle Cost Results
+# Manually Added Benchmark Results and Giggle Cost Results
+# For realtime, automated results, see https://gigglescore.com/
 
 ## Legend
 * EPS = Events Per Second
