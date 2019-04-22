@@ -70,6 +70,11 @@ cores=$(nproc --all)
 
 echo "Number of threads for this SBC: $cores"
 
+echo ""
+echo "Note: Results can vary based on other running processes."
+echo "      It is recommended to run multiple tests and use average."
+echo ""
+
 # we want the junk to go to /tmp
 cd /tmp
 
