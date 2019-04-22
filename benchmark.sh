@@ -2,33 +2,38 @@
 
 # Update apt if we might need to install something
 if [[ ! -f /usr/bin/sysbench ]] || [[ ! -f /usr/bin/bc ]] || [[ ! -f /usr/bin/php ]]; then
+  echo "Looks like this is your first time running benchmark.sh."
+  echo "Performing initial setup..."
+  echo ""
   apt update
 fi
 
 # Install sysbench if it is not found
 
-  # First attempt: install from included repos
   if [[ ! -f /usr/bin/sysbench ]]; then
-    yes | apt install sysbench
 
-    # Didn't install from default repos
-    # Second attempt: install from developer repo
+    # First attempt: install from developer repo for latest version
     if [[ ! -f /usr/bin/sysbench ]]; then
       curl -s https://packagecloud.io/install/repositories/akopytov/sysbench/script.deb.sh | sudo bash
       yes | apt install sysbench
     fi
 
-    # Still no success, so abort
+    # No success, try default repos, will probably be older version
     if [[ ! -f /usr/bin/sysbench ]]; then
-      # First, clean things up from our attempt
+      # First, clean things up from our first attempt
       if [[ -f /etc/apt/sources.list.d/akopytov_sysbench.list ]]; then
         rm /etc/apt/sources.list.d/akopytov_sysbench.list
         apt update
       fi
-      # Now, report the issue to screen and exit
+      yes | apt install sysbench
+    fi
+
+    # Still no success, abort
+    if [[ ! -f /usr/bin/sysbench ]]; then
       echo "sysbench is not yet available on this build."
       exit
     fi
+
   fi
 
 # Good to proceed, begin benchmark
@@ -45,7 +50,8 @@ if [[ -e /tmp/out ]]; then
   rm -f /tmp/out
 fi
 
-echo "Category5.TV SBC Benchmark v1.1"
+echo ""
+echo "Category5.TV SBC Benchmark v1.2"
 printf "Powered by "
 /usr/bin/sysbench --version
 
@@ -67,26 +73,36 @@ echo "Number of threads for this SBC: $cores"
 # we want the junk to go to /tmp
 cd /tmp
 
+# Determine if we're on an old version of SysBench requiring --test=
+help=`/usr/bin/sysbench --help`
+if [[ $help == *"--test="* ]]; then
+  # Old version
+  command='/usr/bin/sysbench --test='
+else
+  # Modern version
+  command='/usr/bin/sysbench '
+fi
+
 printf "Performing CPU Benchmark... "
-cpu=`/usr/bin/sysbench cpu --cpu-max-prime=20000 --num-threads=$cores run | /tmp/benchmark-parse.sh cpu $price`
+cpu=`${command}cpu --cpu-max-prime=20000 --num-threads=$cores run | /tmp/benchmark-parse.sh cpu $price`
 echo $cpu
 
 printf "Performing RAM Benchmark... "
-ram=`/usr/bin/sysbench memory --num-threads=$cores --memory-total-size=10G run | /tmp/benchmark-parse.sh ram $price`
+ram=`${command}memory --num-threads=$cores --memory-total-size=10G run | /tmp/benchmark-parse.sh ram $price`
 echo $ram
 
 printf "Performing Mutex Benchmark... "
-mutex=`/usr/bin/sysbench mutex --num-threads=64 run | /tmp/benchmark-parse.sh mutex $price`
+mutex=`${command}mutex --num-threads=64 run | /tmp/benchmark-parse.sh mutex $price`
 echo $mutex
 
 #printf "Performing I/O Benchmark... "
-#io=`/usr/bin/sysbench fileio --file-test-mode=seqwr run | /tmp/benchmark-parse.sh io $price`
+#io=`${command}fileio --file-test-mode=seqwr run | /tmp/benchmark-parse.sh io $price`
 #echo $io
 
-#echo ""
-#printf "NEMS Performance Score: "
-#nps=`cat /tmp/benchmark_nps`
-#echo $nps NPS
+echo ""
+printf "NEMS Performance Score: "
+nps=`cat /tmp/benchmark_nps`
+echo $nps NPS
 
 echo ""
 printf "Total Giggle Score of this board: Ģ"
