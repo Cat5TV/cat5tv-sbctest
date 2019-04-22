@@ -1,18 +1,21 @@
 #!/bin/bash
 
-apt update
+# Update apt if we might need to install something
+if [[ ! -f /usr/bin/sysbench ]] || [[ ! -f /usr/bin/bc ]] || [[ ! -f /usr/bin/php ]]; then
+  apt update
+fi
 
 # Install sysbench if it is not found
 
   # First attempt: install from included repos
   if [[ ! -f /usr/bin/sysbench ]]; then
-    apt -y install sysbench
+    yes | apt install sysbench
 
     # Didn't install from default repos
     # Second attempt: install from developer repo
     if [[ ! -f /usr/bin/sysbench ]]; then
       curl -s https://packagecloud.io/install/repositories/akopytov/sysbench/script.deb.sh | sudo bash
-      apt -y install sysbench
+      yes | apt install sysbench
     fi
 
     # Still no success, so abort
@@ -31,11 +34,11 @@ apt update
 # Good to proceed, begin benchmark
 
 if [[ ! -f /usr/bin/bc ]]; then
-  apt -y install bc
+  yes | apt install bc
 fi
 
 if [[ ! -f /usr/bin/php ]]; then
-  apt -y install php
+  yes | apt install php
 fi
 
 if [[ -e /tmp/out ]]; then
@@ -65,23 +68,28 @@ echo "Number of threads for this SBC: $cores"
 cd /tmp
 
 printf "Performing CPU Benchmark... "
-cpu=`/usr/bin/sysbench --test=cpu --cpu-max-prime=20000 --num-threads=$cores run | /tmp/benchmark-parse.sh cpu $price`
+cpu=`/usr/bin/sysbench cpu --cpu-max-prime=20000 --num-threads=$cores run | /tmp/benchmark-parse.sh cpu $price`
 echo $cpu
 
 printf "Performing RAM Benchmark... "
-ram=`/usr/bin/sysbench --test=memory --num-threads=$cores --memory-total-size=10G run | /tmp/benchmark-parse.sh ram $price`
+ram=`/usr/bin/sysbench memory --num-threads=$cores --memory-total-size=10G run | /tmp/benchmark-parse.sh ram $price`
 echo $ram
 
 printf "Performing Mutex Benchmark... "
-mutex=`/usr/bin/sysbench --test=mutex --num-threads=64 run | /tmp/benchmark-parse.sh mutex $price`
+mutex=`/usr/bin/sysbench mutex --num-threads=64 run | /tmp/benchmark-parse.sh mutex $price`
 echo $mutex
 
 #printf "Performing I/O Benchmark... "
-#io=`/usr/bin/sysbench --test=fileio --file-test-mode=seqwr run | /tmp/benchmark-parse.sh io $price`
+#io=`/usr/bin/sysbench fileio --file-test-mode=seqwr run | /tmp/benchmark-parse.sh io $price`
 #echo $io
 
+#echo ""
+#printf "NEMS Performance Score: "
+#nps=`cat /tmp/benchmark_nps`
+#echo $nps NPS
+
 echo ""
-printf "Total Giggle cost of this board: Ģ"
+printf "Total Giggle Score of this board: Ģ"
 pricescore=`cat /tmp/benchmark_pricescore`
 priceperc=$(echo "scale=2;$price/100" | bc)
 giggles=$(echo "scale=2;$pricescore*$priceperc" | bc)
@@ -90,10 +98,10 @@ echo "
 
 Giggles (Ģ) are a cost comparison that takes cost and performance into account.
 While the figure itself is not a direct translation of a dollar value, it works
-the same way: A board with a lower Giggle value costs less for the performance.
-If a board has a high Giggle value, it means for its performance, it is expensive.
+the same way: A board with a lower Giggle Score costs less for the performance.
+If a board has a high Giggle Score, it means for its performance, it is expensive.
 Giggles help you determine if a board is better bang-for-the-buck, even if it
-has a different real-world dollar value. Total Giggle cost does not include I/O
+has a different real-world dollar value. Total Giggle Score does not include I/O
 since that can be impacted by which SD card you choose. Lower Ģ is better.
 
 See https://gigglescore.com/ for more information.
@@ -103,3 +111,4 @@ See https://gigglescore.com/ for more information.
 rm -f /tmp/test_file.*
 rm -f /tmp/benchmark-parse.sh
 rm -f /tmp/benchmark_pricescore
+rm -f /tmp/benchmark_nps

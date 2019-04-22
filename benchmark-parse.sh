@@ -44,6 +44,15 @@
         $pricescore = $pricescore + $valuescore;
         if ($test != 'io') file_put_contents('/tmp/benchmark_pricescore',$pricescore);
         echo number_format($result,3) . ' events per second. Price: Ģ' . number_format($valuescore,2) . ' per unit.';
+        if (($test != 'io') && ($test != 'ram')) {
+          if (file_exists('/tmp/benchmark_nps')) {
+            $nps = intval(file_get_contents('/tmp/benchmark_nps'));
+          } else {
+            $nps = 0;
+          }
+          $nps = ceil($nps + $result);
+          file_put_contents('/tmp/benchmark_nps',$nps);
+        }
       } else {
         echo 0;
       }
