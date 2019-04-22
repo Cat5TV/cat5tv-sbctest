@@ -1,4 +1,7 @@
 #!/bin/bash
+exit
+# THIS SCRIPT HAS NOTHING TO DO WITH GIGGLES!
+# This is just something we sometimes use on-air for demonstrations of new SBCs
 
 # Install cat5tv-miners to compare monero mining H/s
 wget -O /tmp/cat5tv-miners-install.sh https://raw.githubusercontent.com/Cat5TV/cat5tv-miners/master/monero-cpu.sh && chmod +x /tmp/cat5tv-miners-install.sh && sudo /tmp/cat5tv-miners-install.sh
