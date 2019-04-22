@@ -1,11 +1,34 @@
 #!/bin/bash
 
-if [[ ! -f /usr/bin/sysbench ]]; then
-  wget -O /tmp/sysbench.sh https://packagecloud.io/install/repositories/akopytov/sysbench/script.deb.sh
-  chmod +x /tmp/sysbench.sh
-  /tmp/sysbench.sh
-  apt -y install sysbench
-fi
+apt update
+
+# Install sysbench if it is not found
+
+  # First attempt: install from included repos
+  if [[ ! -f /usr/bin/sysbench ]]; then
+    apt -y install sysbench
+
+    # Didn't install from default repos
+    # Second attempt: install from developer repo
+    if [[ ! -f /usr/bin/sysbench ]]; then
+      curl -s https://packagecloud.io/install/repositories/akopytov/sysbench/script.deb.sh | sudo bash
+      apt -y install sysbench
+    fi
+
+    # Still no success, so abort
+    if [[ ! -f /usr/bin/sysbench ]]; then
+      # First, clean things up from our attempt
+      if [[ -f /etc/apt/sources.list.d/akopytov_sysbench.list ]]; then
+        rm /etc/apt/sources.list.d/akopytov_sysbench.list
+        apt update
+      fi
+      # Now, report the issue to screen and exit
+      echo "sysbench is not yet available on this build."
+      exit
+    fi
+  fi
+
+# Good to proceed, begin benchmark
 
 if [[ ! -f /usr/bin/bc ]]; then
   apt -y install bc
@@ -19,15 +42,14 @@ if [[ -e /tmp/out ]]; then
   rm -f /tmp/out
 fi
 
-echo "Category5.TV SBC Benchmark v1.0"
+echo "Category5.TV SBC Benchmark v1.1"
 printf "Powered by "
 /usr/bin/sysbench --version
 
 price=$1
 if [[ $price == '' ]]; then
   echo "Usage: ./$0 50"
-  echo "Where 50 is the price of this board."
-  echo "(can be $50 or 50£ - as long as you always use same)"
+  echo "Where 50 is the USD price of this board."
   exit
 fi
 
@@ -72,7 +94,10 @@ the same way: A board with a lower Giggle value costs less for the performance.
 If a board has a high Giggle value, it means for its performance, it is expensive.
 Giggles help you determine if a board is better bang-for-the-buck, even if it
 has a different real-world dollar value. Total Giggle cost does not include I/O
-since that can be impacted by which SD card you choose. Lower Ģ is better."
+since that can be impacted by which SD card you choose. Lower Ģ is better.
+
+See https://gigglescore.com/ for more information.
+"
 
 # Clear the test files
 rm -f /tmp/test_file.*
