@@ -36,7 +36,7 @@
           $events = floatval($tmp[1]);
         }
       }
-      if ( ($events > 0) && ($time > 0) ) {
+      if ( isset($events) && isset($time) && ($events > 0) && ($time > 0) ) {
         $result = ($events / $time);
         $price = floatval($argv[2]);
         $valuescore = (($price/$result)*3600);
