@@ -1,5 +1,8 @@
 #!/bin/bash
 
+echo "v1 has been deprecated. Please check back for v2 (coming soon)."
+exit
+
 # Update apt if we might need to install something
 if [[ ! -f /usr/bin/sysbench ]] || [[ ! -f /usr/bin/bc ]] || [[ ! -f /usr/bin/php ]]; then
   echo "Looks like this is your first time running benchmark.sh."
