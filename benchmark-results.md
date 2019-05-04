@@ -1,6 +1,8 @@
 # Manually Added Benchmark Results and Giggle Cost Results
 # For realtime, automated results, see https://gigglescore.com/
 
+## NOTE: These stats are from the v1 algorithm. For more accurate results, please see the v2 results at https://gigglescore.com
+
 ## Legend
 * EPS = Events Per Second
 * ĢPU = Giggles Per Unit
