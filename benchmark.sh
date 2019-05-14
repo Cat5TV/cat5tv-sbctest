@@ -90,7 +90,7 @@ if [[ -z $prog ]]; then
 fi
 
 echo ""
-echo "Category5.TV SBC Benchmark v2.0"
+echo "Category5.TV SBC Benchmark v2.1"
 echo ""
 printf "LZMA Benchmarks Provided By: "
 $prog 2>&1 | head -n3
@@ -163,15 +163,11 @@ echo "---------------------------------" >> $tmpdir/nems-benchmark.log
 printf "Performing 7z Benchmark: " >> $tmpdir/nems-benchmark.log
 
 if [[ ! -z $prog ]]; then
-  # Get the total result from first CPU core
-  taskset -c 0 "$prog" b > $tmpdir/7z.log
-  result1=$(awk -F" " '/^Tot:/ {print $4}' <$tmpdir/7z.log | tr '\n' ', ' | sed 's/,$//')
-  # Get the total result from last CPU core (might be big.LITTLE, or could be same core)
-  taskset -c $(( $cores - 1 )) "$prog" b > $tmpdir/7z.log
-  result2=$(awk -F" " '/^Tot:/ {print $4}' <$tmpdir/7z.log | tr '\n' ', ' | sed 's/,$//')
-  average7z=$(( ($result1 + $result2) / 2 ))
+  # Multithreaded CPU benchmark
+  "$prog" b > $tmpdir/7z.log
+  result7z=$(awk -F" " '/^Tot:/ {print $4}' <$tmpdir/7z.log | tr '\n' ', ' | sed 's/,$//')
   echo "Done." >> $tmpdir/nems-benchmark.log
-  echo "7z Benchmark Result:     $average7z" >> $tmpdir/nems-benchmark.log
+  echo "7z Benchmark Result:     $result7z" >> $tmpdir/nems-benchmark.log
 else
   echo "Can't find or install p7zip. 7z benchmark skipped." >> $tmpdir/nems-benchmark.log
 fi
@@ -179,7 +175,7 @@ echo "---------------------------------" >> $tmpdir/nems-benchmark.log
 
 echo "" >> $tmpdir/nems-benchmark.log
 
-gigglescore=$(bc -l <<< "($price/$average7z)*100000")
+gigglescore=$(bc -l <<< "($price/$result7z)*100000")
 gigglescore=$(bc <<< "scale=2;$gigglescore/1")
 echo "Giggle Score: $gigglescore Ģv2" >> $tmpdir/nems-benchmark.log
 
