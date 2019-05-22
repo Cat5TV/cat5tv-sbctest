@@ -2,6 +2,15 @@
 # Enable UTF-8
 printf '\033%%G'
 
+echo ""
+echo "Category5.TV SBC Benchmark v2.2"
+echo ""
+
+if [[ $EUID -ne 0 ]]; then
+  echo "ERROR: This script must be run as root" 2>&1
+  exit 1
+fi
+
 start=`date +%s`
 
 location=`pwd`
@@ -13,112 +22,92 @@ if [[ $price == '' ]]; then
   exit
 fi
 
+tmpdir=`mktemp -d -p /tmp/`
+echo "Working in $tmpdir"
+cd $tmpdir
+echo ""
+
+printf "Please wait... "
+
 # Install sysbench if it is not found
 
-  # Set the version of sysbench so all match
-  # Needs to match a release found at https://github.com/akopytov/sysbench/releases
-    ver='1.0.17'
-
-  # Compile if not exist
-  if [[ ! -f /usr/local/bin/sysbench-$ver/bin/sysbench ]]; then
-
-      # Warn and give chance to abort installation
-        echo "sysbench-$ver not found. I will install it (along with dependencies) now."
-        echo 'CTRL-C to abort'
-        sleep 5
+  # Compile sysbench
 
       # Update apt repositories
-        apt update
+        apt update > /dev/null 2>&1
 
       # Install dependencies to compile from source
-        yes | apt install make
-        yes | apt install automake
-        yes | apt install libtool
-        yes | apt install libz-dev
-        yes | apt install pkg-config
-        yes | apt install libaio-dev
+        yes | apt install unzip > /dev/null 2>&1
+        yes | apt install make > /dev/null 2>&1
+        yes | apt install automake > /dev/null 2>&1
+        yes | apt install libtool > /dev/null 2>&1
+        yes | apt install libz-dev > /dev/null 2>&1
+        yes | apt install pkg-config > /dev/null 2>&1
+        yes | apt install libaio-dev > /dev/null 2>&1
         # MySQL Compatibility
-        yes | apt install libmariadb-dev-compat
-        yes | apt install libmariadb-dev
-        yes | apt install libssl-dev
+        yes | apt install libmariadb-dev-compat > /dev/null 2>&1
+        yes | apt install libmariadb-dev > /dev/null 2>&1
+        yes | apt install libssl-dev > /dev/null 2>&1
+
+      # Set the version of sysbench so all match
+      # Needs to match a release found at https://github.com/akopytov/sysbench/releases
+        ver='1.0.17'
 
       # Download and compile from source
-        tmpdir=`mktemp -d -p /tmp/`
-        echo "Working in $tmpdir"
         cd $tmpdir
-        wget https://github.com/akopytov/sysbench/archive/$ver.zip
-        unzip $ver.zip
+        wget https://github.com/akopytov/sysbench/archive/$ver.zip > /dev/null 2>&1
+        unzip $ver.zip > /dev/null 2>&1
         cd sysbench-$ver
-        ./autogen.sh
-        ./configure --prefix=/usr/local/bin/sysbench-$ver/
-        make -j && make install
-
-      # Clean up
-        cd /tmp && rm -rf $tmpdir
-
-      if [[ ! -f /usr/local/bin/sysbench-$ver/bin/sysbench ]]; then
-        # I tried and failed
-        # Now, report the issue to screen and exit
-        echo "sysbench could not be installed."
-        exit 1
-      fi
-
-  fi
-
+        timerstart=`date +%s`
+        ./autogen.sh > /dev/null 2>&1
+        ./configure --prefix=$tmpdir/sysbench > /dev/null 2>&1
+        make -j > /dev/null 2>&1
+        make install > /dev/null 2>&1
+        timerend=`date +%s`
+        sysbenchcompiletime=$((timerend-timerstart))
 
 if [[ ! -f /usr/bin/bc ]]; then
-  yes | apt install bc
+  yes | apt install bc > /dev/null 2>&1
 fi
 
 if [[ ! -f /usr/bin/php ]]; then
-  yes | apt install php
-fi
-
-if [[ -e /tmp/out ]]; then
-  rm -f /tmp/out
+  yes | apt install php > /dev/null 2>&1
 fi
 
 prog=$(which 7za || which 7zr)
 if [[ -z $prog ]]; then
-  apt update && apt -y install p7zip
+  yes | apt install p7zip > /dev/null 2>&1
   prog=$(which 7za || which 7zr)
 fi
+
+echo "Great job waiting!"
+echo ""
 
 if [[ -z $prog ]]; then
   echo "Cannot install p7zip. Aborting."
   exit 1
 fi
 
-echo ""
-echo "Category5.TV SBC Benchmark v2.1"
-echo ""
 printf "LZMA Benchmarks Provided By: "
 $prog 2>&1 | head -n3
 echo ""
-echo "Floating Point Benchmarks Provided By:"
-/usr/local/bin/sysbench-$ver/bin/sysbench --version
+echo "sysbench Benchmarks Provided By:"
+$tmpdir/sysbench/bin/sysbench --version
 echo ""
 
 # Good to proceed, begin benchmark
 
-sysbench=/usr/local/bin/sysbench-$ver/bin/sysbench
+sysbench=$tmpdir/sysbench/bin/sysbench
 
-echo "Please Wait (may take a while)."
-
-tmpdir=`mktemp -d -p /tmp/`
+echo "Please Wait (will take several minutes)."
 
 echo "System Benchmark" > $tmpdir/nems-benchmark.log
 date >> $tmpdir/nems-benchmark.log
-
-printf "System Uptime: " >> $tmpdir/nems-benchmark.log
-/usr/bin/uptime >> $tmpdir/nems-benchmark.log
 
 echo "---------------------------------" >> $tmpdir/nems-benchmark.log
 
 # Run the tests
 cores=$(nproc --all)
-
-echo "Number of threads: $cores" >> $tmpdir/nems-benchmark.log
 
 cd $tmpdir
 
@@ -141,19 +130,19 @@ fi
 
 printf "Performing CPU Benchmark: " >> $tmpdir/nems-benchmark.log
 cpu=`${command}cpu --cpu-max-prime=20000 $threadsswitch=$cores run | $location/parse.sh cpu $price`
-echo "CPU Score $cpu" >> $tmpdir/nems-benchmark.log
+echo "Done." >> $tmpdir/nems-benchmark.log
 
 printf "Performing RAM Benchmark: " >> $tmpdir/nems-benchmark.log
 ram=`${command}memory $threadsswitch=$cores --memory-total-size=10G run | $location/parse.sh ram $price`
-echo "RAM Score $ram" >> $tmpdir/nems-benchmark.log
+echo "Done." >> $tmpdir/nems-benchmark.log
 
 printf "Performing Mutex Benchmark: " >> $tmpdir/nems-benchmark.log
 mutex=`${command}mutex $threadsswitch=64 run | $location/parse.sh mutex $price`
-echo "Mutex Score $mutex" >> $tmpdir/nems-benchmark.log
+echo "Done." >> $tmpdir/nems-benchmark.log
 
 printf "Performing I/O Benchmark: " >> $tmpdir/nems-benchmark.log
 io=`${command}fileio --file-test-mode=seqwr run | $location/parse.sh io $price`
-echo "I/O Score $io" >> $tmpdir/nems-benchmark.log
+echo "Done." >> $tmpdir/nems-benchmark.log
 
 # Clear the test files
 rm -f $tmpdir/test_file.*
@@ -164,26 +153,78 @@ printf "Performing 7z Benchmark: " >> $tmpdir/nems-benchmark.log
 
 if [[ ! -z $prog ]]; then
   # Multithreaded CPU benchmark
-  "$prog" b > $tmpdir/7z.log
-  result7z=$(awk -F" " '/^Tot:/ {print $4}' <$tmpdir/7z.log | tr '\n' ', ' | sed 's/,$//')
-  echo "Done." >> $tmpdir/nems-benchmark.log
-  echo "7z Benchmark Result:     $result7z" >> $tmpdir/nems-benchmark.log
+    "$prog" b > $tmpdir/7z.log
+    result7z=$(awk -F" " '/^Tot:/ {print $4}' <$tmpdir/7z.log | tr '\n' ', ' | sed 's/,$//')
+
+  # Average Single Thread benchmark
+    # Get the total result from first CPU core
+      taskset -c 0 "$prog" b > $tmpdir/7z.log
+      result1=$(awk -F" " '/^Tot:/ {print $4}' <$tmpdir/7z.log | tr '\n' ', ' | sed 's/,$//')
+      cores1=$($location/parsecores.sh 0)
+    # Get the total result from last CPU core (might be big.LITTLE, or could be same core)
+      lastcore=$(( $cores - 1 ))
+      if (( $lastcore > 0 )); then
+        taskset -c $lastcore "$prog" b > $tmpdir/7z.log
+        result2=$(awk -F" " '/^Tot:/ {print $4}' <$tmpdir/7z.log | tr '\n' ', ' | sed 's/,$//')
+        cores2=$($location/parsecores.sh $lastcore)
+      else
+        result2=$result1 # Single-core processor
+      fi
+      # Multiply our first and last result by the number of cores on that processor
+      # This assumes each core of the same processor will clock roughly the same
+      # which is not literally accurate, but gives us a reasonable approximation without
+      # having to benchmark each and every core.
+      average7z=$(( ( ($result1*$cores1) + ($result2*$cores2) ) / 2 ))
+
+      echo "Done." >> $tmpdir/nems-benchmark.log
+
 else
   echo "Can't find or install p7zip. 7z benchmark skipped." >> $tmpdir/nems-benchmark.log
 fi
+
+echo "---------------------------------" >> $tmpdir/nems-benchmark.log
+
+end=`date +%s`
+runtime=$((end-start))
+echo "Benchmark of this benchmark: "$runtime" seconds" >> $tmpdir/nems-benchmark.log
+
 echo "---------------------------------" >> $tmpdir/nems-benchmark.log
 
 echo "" >> $tmpdir/nems-benchmark.log
 
 gigglescore=$(bc -l <<< "($price/$result7z)*100000")
 gigglescore=$(bc <<< "scale=2;$gigglescore/1")
-echo "Giggle Score: $gigglescore Ģv2" >> $tmpdir/nems-benchmark.log
 
+gigglescore1t=$(bc -l <<< "($price/$average7z)*100000")
+gigglescore1t=$(bc <<< "scale=2;$gigglescore1t/1")
+
+echo "Report:" >> $tmpdir/nems-benchmark.log
 echo "" >> $tmpdir/nems-benchmark.log
 
-end=`date +%s`
-runtime=$((end-start))
-echo "Benchmark of this benchmark: "$runtime" seconds" >> $tmpdir/nems-benchmark.log
+echo "System Uptime:" >> $tmpdir/nems-benchmark.log
+/usr/bin/uptime >> $tmpdir/nems-benchmark.log
+echo "" >> $tmpdir/nems-benchmark.log
+
+echo "Number of threads:            $cores" >> $tmpdir/nems-benchmark.log
+echo "Compiler Time:                $sysbenchcompiletime seconds" >> $tmpdir/nems-benchmark.log
+echo "Multithreaded 7z Benchmark:   $result7z MIPS" >> $tmpdir/nems-benchmark.log
+echo "Single-Threaded 7z Benchmark: $average7z MIPS Average" >> $tmpdir/nems-benchmark.log
+
+echo "sysbench CPU Score:
+     $cpu" >> $tmpdir/nems-benchmark.log
+echo "sysbench RAM Score:
+     $ram" >> $tmpdir/nems-benchmark.log
+echo "sysbench Mutex Score:
+     $mutex" >> $tmpdir/nems-benchmark.log
+echo "sysbench I/O Score:
+     $io" >> $tmpdir/nems-benchmark.log
+
+echo "" >> $tmpdir/nems-benchmark.log
+echo "Giggle Scores:" >> $tmpdir/nems-benchmark.log
+echo "Multithreaded Giggle Score:   $gigglescore Ģv2" >> $tmpdir/nems-benchmark.log
+echo "Single-threaded Giggle Score: $gigglescore1t Ģv2" >> $tmpdir/nems-benchmark.log
+
+echo "" >> $tmpdir/nems-benchmark.log
 
 cat $tmpdir/nems-benchmark.log
 cd /tmp
