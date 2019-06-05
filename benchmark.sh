@@ -175,7 +175,11 @@ if [[ ! -z $prog ]]; then
       # This assumes each core of the same processor will clock roughly the same
       # which is not literally accurate, but gives us a reasonable approximation without
       # having to benchmark each and every core.
-      average7z=$(( ( ($result1*$cores1) + ($result2*$cores2) ) / 2 ))
+      if (( $cores2 > 0 )); then
+        average7z=$(( ( ($result1*$cores1) + ($result2*$cores2) ) / 2 ))
+      else
+        average7z=$(( ($result1*$cores1) ))
+      fi
 
       echo "Done." >> $tmpdir/nems-benchmark.log
 
