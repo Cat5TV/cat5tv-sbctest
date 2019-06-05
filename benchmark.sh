@@ -149,7 +149,7 @@ rm -f $tmpdir/test_file.*
 
 echo "---------------------------------" >> $tmpdir/nems-benchmark.log
 
-printf "Performing 7z Benchmark: " >> $tmpdir/nems-benchmark.log
+printf "Performing LZMA Benchmark: " >> $tmpdir/nems-benchmark.log
 
 if [[ ! -z $prog ]]; then
   # Multithreaded CPU benchmark
@@ -163,7 +163,8 @@ if [[ ! -z $prog ]]; then
       cores1=$($location/parsecores.sh 0)
     # Get the total result from last CPU core (might be big.LITTLE, or could be same core)
       lastcore=$(( $cores - 1 ))
-      if (( $lastcore > 0 )); then
+      cores2=0
+      if (( $lastcore > 0 )) && (( $cores1 < $cores )); then
         taskset -c $lastcore "$prog" b > $tmpdir/7z.log
         result2=$(awk -F" " '/^Tot:/ {print $4}' <$tmpdir/7z.log | tr '\n' ', ' | sed 's/,$//')
         cores2=$($location/parsecores.sh $lastcore)
@@ -179,7 +180,7 @@ if [[ ! -z $prog ]]; then
       echo "Done." >> $tmpdir/nems-benchmark.log
 
 else
-  echo "Can't find or install p7zip. 7z benchmark skipped." >> $tmpdir/nems-benchmark.log
+  echo "Can't find or install p7zip. LZMA benchmark skipped." >> $tmpdir/nems-benchmark.log
 fi
 
 echo "---------------------------------" >> $tmpdir/nems-benchmark.log
@@ -205,10 +206,15 @@ echo "System Uptime:" >> $tmpdir/nems-benchmark.log
 /usr/bin/uptime >> $tmpdir/nems-benchmark.log
 echo "" >> $tmpdir/nems-benchmark.log
 
-echo "Number of threads:            $cores" >> $tmpdir/nems-benchmark.log
-echo "Compiler Time:                $sysbenchcompiletime seconds" >> $tmpdir/nems-benchmark.log
-echo "Multithreaded 7z Benchmark:   $result7z MIPS" >> $tmpdir/nems-benchmark.log
-echo "Single-Threaded 7z Benchmark: $average7z MIPS Average" >> $tmpdir/nems-benchmark.log
+echo "Number of Threads:              $cores" >> $tmpdir/nems-benchmark.log
+if (( $cores2 > 0 )); then
+  echo "SoC Contains big.LITTLE CPU:    Yes: $cores1 + $cores2 Cores" >> $tmpdir/nems-benchmark.log
+else
+  echo "SoC Contains big.LITTLE CPU:    No" >> $tmpdir/nems-benchmark.log
+fi
+echo "Compiler Time:                  $sysbenchcompiletime seconds" >> $tmpdir/nems-benchmark.log
+echo "Multithreaded LZMA Benchmark:   $result7z MIPS" >> $tmpdir/nems-benchmark.log
+echo "Single-Threaded LZMA Benchmark: $average7z MIPS Average" >> $tmpdir/nems-benchmark.log
 
 echo "sysbench CPU Score:
      $cpu" >> $tmpdir/nems-benchmark.log
